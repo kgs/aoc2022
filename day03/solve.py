@@ -1,8 +1,7 @@
+from string import ascii_letters
+
 def priority(c: str) -> int:
-    if c.islower():
-        return ord(c) - ord('a') + 1
-    else:
-        return ord(c) - ord('A') + 27
+    return ascii_letters.index(c) + 1
 
 
 def part1(input_txt: str) -> int:
