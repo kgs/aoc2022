@@ -10,7 +10,7 @@ class Range:
     def contains_fully(self, other: Self) -> bool:
         return self.left <= other.left and other.right <= self.right
 
-    def overlap(self, other: Self) -> bool:
+    def overlaps(self, other: Self) -> bool:
         return self.left <= other.right and other.left <= self.right
 
     @classmethod
@@ -34,7 +34,7 @@ def part2(input_txt: str) -> int:
         res = 0
         for line in lines:
             a, b = map(Range.from_str, line.split(","))
-            res += int(a.overlap(b))
+            res += int(a.overlaps(b))
         return res
 
 
