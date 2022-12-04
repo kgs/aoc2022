@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from typing import Self
+from pydantic.dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -15,6 +15,7 @@ class Range:
 
     @classmethod
     def from_str(cls, s: str) -> Self:
+        # conversion to int not necessary here (pydantic will do that)
         return cls(*map(int, s.split("-")))
 
 
