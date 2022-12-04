@@ -1,5 +1,6 @@
 from string import ascii_letters
 
+
 def priority(c: str) -> int:
     return ascii_letters.index(c) + 1
 
