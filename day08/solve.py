@@ -1,30 +1,55 @@
-def part1(input_txt: str) -> int:
+DIRS = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+
+
+def parse_matrix(input_txt: str) -> (list[list[int]], int, int):
     with open(input_txt) as f:
         lines = map(lambda x: x.strip(), f.readlines())
         matrix = [[int(c) for c in line] for line in lines]
-        dirs = [(0, 1), (1, 0), (-1, 0), (0, -1)]
-        res = 0
-        for col in range(len(matrix)):
-            for row in range(len(matrix[0])):
-                v = matrix[col][row]
-                for d in dirs:
-                    vis = True
-                    col_n = col + d[0]
-                    row_n = row + d[1]
-                    while 0 <= col_n < len(matrix) and 0 <= row_n < len(matrix[0]):
-                        if matrix[col_n][row_n] >= v:
-                            vis = False
-                            break
-                        col_n += d[0]
-                        row_n += d[1]
-                    if vis:
-                        res += 1
+        return matrix, len(matrix), len(matrix[0])  # matrix, cols, rows
+
+
+def part1(input_txt: str) -> int:
+    matrix, num_cols, num_rows = parse_matrix(input_txt)
+    res = 0
+    for col in range(num_cols):
+        for row in range(num_rows):
+            v = matrix[col][row]
+            for d in DIRS:
+                vis = True
+                col_n = col + d[0]
+                row_n = row + d[1]
+                while 0 <= col_n < num_cols and 0 <= row_n < num_rows:
+                    if matrix[col_n][row_n] >= v:
+                        vis = False
                         break
-        return res
+                    col_n += d[0]
+                    row_n += d[1]
+                if vis:
+                    res += 1
+                    break
+    return res
 
 
 def part2(input_txt: str) -> int:
-    return 0
+    matrix, num_cols, num_rows = parse_matrix(input_txt)
+    best = 0
+    for col in range(num_cols):
+        for row in range(num_rows):
+            v = matrix[col][row]
+            res = 1
+            for d in DIRS:
+                e = 0
+                col_n = col + d[0]
+                row_n = row + d[1]
+                while 0 <= col_n < num_cols and 0 <= row_n < num_rows:
+                    e += 1
+                    if matrix[col_n][row_n] >= v:
+                        break
+                    col_n += d[0]
+                    row_n += d[1]
+                res *= e
+            best = max(best, res)
+    return best
 
 
 if __name__ == "__main__":
