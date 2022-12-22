@@ -44,7 +44,22 @@ def part1(input_txt: str) -> int:
 
 
 def part2(input_txt: str) -> int:
-    return 0
+    with open(input_txt) as f:
+        lines = map(lambda x: x.strip(), f.readlines())
+        rope = [Point(0, 0) for _ in range(10)]
+        visited = {(rope[9].x, rope[9].y)}
+        for move in lines:
+            where, steps = move.split()
+            for s in range(int(steps)):
+                vx, vy = DIRS[where]
+                rope[0].move(vx, vy)
+                for i in range(1, 10):
+                    h = rope[i - 1]
+                    t = rope[i]
+                    if not is_touching(h, t):
+                        t.move(sign(h.x - t.x), sign(h.y - t.y))
+                visited.add((rope[9].x, rope[9].y))
+        return len(visited)
 
 
 if __name__ == "__main__":
