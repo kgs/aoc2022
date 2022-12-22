@@ -29,7 +29,7 @@ def find_dirs(n: Node, p: Callable[[Node], bool]) -> list[Node]:
     return res
 
 
-def part1(input_txt: str) -> int:
+def parse_tree(input_txt: str) -> Node:
     with open(input_txt) as f:
         root = Node(name="/")
         c = root
@@ -52,13 +52,23 @@ def part1(input_txt: str) -> int:
                     c.files.append(f)
                 case _:
                     raise Exception("should not happen!")
-        interesting_dirs = find_dirs(root, lambda n: n.total_size() <= 100_000)
-        return sum([d.total_size() for d in interesting_dirs])
+        return root
+
+
+def part1(input_txt: str) -> int:
+    root = parse_tree(input_txt)
+    interesting_dirs = find_dirs(root, lambda n: n.total_size() <= 100_000)
+    return sum([d.total_size() for d in interesting_dirs])
 
 
 def part2(input_txt: str) -> int:
-    with open(input_txt) as f:
-        pass
+    root = parse_tree(input_txt)
+    disk_size = 70_000_000
+    need_space = 30_000_000
+    unused_space = disk_size - root.total_size()
+    min_to_remove = need_space - unused_space
+    dirs_to_delete = find_dirs(root, lambda n: n.total_size() >= min_to_remove)
+    return min([d.total_size() for d in dirs_to_delete])
 
 
 if __name__ == "__main__":
