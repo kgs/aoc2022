@@ -32,6 +32,13 @@ DIRS = {
     "D": Vector(0, 1)
 }
 
+VEC_POINTS = {
+    (1, 0): 0,
+    (0, 1): 1,
+    (-1, 0): 2,
+    (0, -1): 3
+}
+
 
 @dataclass
 class Move:
@@ -41,10 +48,11 @@ class Move:
 
 def parse_maze(maze_str: str) -> list[list[Tile]]:
     lines = maze_str.splitlines()
-    lengths = [len(l) for l in lines]
-    safe_fill = max(lengths) - min(lengths)
+    max_length = max([len(l) for l in lines])
+    lines = [" " * max_length] + lines + [" " * max_length]  # sentinel line at first row and last row
     for i in range(len(lines)):
-        lines[i] = lines[i] + " " * safe_fill  # we need to add some whitespace
+        lines[i] = " " + lines[i] \
+                   + " " * (max_length - len(lines[i]) + 1)  # sentinel at start and many at end
     return [[Tile(x, y, val) for x, val in enumerate(line)] for y, line in enumerate(lines)]
 
 
@@ -65,26 +73,21 @@ def parse_moves(moves_str: str) -> list[Move]:
 
 
 def find_start(maze: list[list[Tile]]) -> Tile:
-    for t in maze[0]:
+    for t in maze[1]:  # first line == sentinels
         if t.val == '.':
             return t
 
 
-def in_bound(x, y, max_x, max_y) -> bool:
-    return 0 <= x < max_x and 0 <= y < max_y
-
-
 def next_tile(maze: list[list[Tile]], curr_tile: Tile, vec: Vector) -> Tile:
-    max_y, max_x = len(maze), len(maze[0])
     nx = curr_tile.x + vec.vx
     ny = curr_tile.y + vec.vy
     # if off the board, then wrap
-    if not in_bound(nx, ny, max_x, max_y) or maze[ny][nx].val == " ":
+    if maze[ny][nx].val == " ":
         opposite_vec = vec.opposite()
         while True:
             nx += opposite_vec.vx
             ny += opposite_vec.vy
-            if not in_bound(nx, ny, max_x, max_y) or maze[ny][nx].val == " ":
+            if maze[ny][nx].val == " ":
                 # we are one step too far, move back
                 nx += vec.vx
                 ny += vec.vy
@@ -98,18 +101,6 @@ def next_tile(maze: list[list[Tile]], curr_tile: Tile, vec: Vector) -> Tile:
         raise Exception("should not happen!")
 
 
-def vec_to_points(vec: Vector) -> int:
-    match (vec.vx, vec.vy):
-        case (1, 0):
-            return 0
-        case (0, 1):
-            return 1
-        case (-1, 0):
-            return 2
-        case (0, -1):
-            return 3
-
-
 def part1(input_txt: str) -> int:
     with open(input_txt) as f:
         maze_str, moves_str = f.read().split("\n\n")
@@ -119,7 +110,8 @@ def part1(input_txt: str) -> int:
         for move in moves:
             for _ in range(move.steps):
                 curr_tile = next_tile(maze, curr_tile, move.vec)
-        return 1000 * (curr_tile.y + 1) + 4 * (curr_tile.x + 1) + vec_to_points(moves[-1].vec)
+        last_vec = moves[-1].vec
+        return 1000 * curr_tile.y + 4 * curr_tile.x + VEC_POINTS[(last_vec.vx, last_vec.vy)]
 
 
 def part2(input_txt: str) -> int:
@@ -129,9 +121,9 @@ def part2(input_txt: str) -> int:
 
 if __name__ == "__main__":
     sample_p1_ans = part1("sample.txt")
-    print(f"sample: {sample_p1_ans}")
+    assert sample_p1_ans == 6032
     p1_ans = part1("input.txt")
-    print(f"part1: {p1_ans}")
+    assert p1_ans == 133174
     sample_p2_ans = part2("sample.txt")
     print(f"sample: {sample_p2_ans}")
     p2_ans = part2("input.txt")
