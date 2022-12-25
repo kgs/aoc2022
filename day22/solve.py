@@ -42,7 +42,7 @@ VEC_POINTS = {
 
 @dataclass
 class Move:
-    vec: Vector
+    rotate: str | None
     steps: int
 
 
@@ -58,17 +58,11 @@ def parse_maze(maze_str: str) -> list[list[Tile]]:
 
 def parse_moves(moves_str: str) -> list[Move]:
     tokens = re.split("([RL])", moves_str)
-    d = DIRS["R"]
-    moves = [Move(d, int(tokens[0]))]
+    moves = [Move(None, int(tokens[0]))]
     for i in range(1, len(tokens), 2):
         rotate = tokens[i]
         steps = int(tokens[i + 1])
-        match rotate:
-            case "R":
-                d = d.rotated_right()
-            case "L":
-                d = d.rotated_left()
-        moves.append(Move(d, steps))
+        moves.append(Move(rotate, steps))
     return moves
 
 
@@ -78,7 +72,7 @@ def find_start(maze: list[list[Tile]]) -> Tile:
             return t
 
 
-def next_tile(maze: list[list[Tile]], curr_tile: Tile, vec: Vector) -> Tile:
+def next_tile(maze: list[list[Tile]], curr_tile: Tile, vec: Vector) -> tuple[Tile, Vector]:
     nx = curr_tile.x + vec.vx
     ny = curr_tile.y + vec.vy
     # if off the board, then wrap
@@ -94,9 +88,9 @@ def next_tile(maze: list[list[Tile]], curr_tile: Tile, vec: Vector) -> Tile:
                 break
     new_tile = maze[ny][nx]
     if new_tile.val == "#":
-        return curr_tile
+        return curr_tile, vec
     elif new_tile.val == ".":
-        return new_tile
+        return new_tile, vec
     else:
         raise Exception("should not happen!")
 
@@ -107,11 +101,16 @@ def part1(input_txt: str) -> int:
         maze = parse_maze(maze_str)
         moves = parse_moves(moves_str)
         curr_tile = find_start(maze)
+        curr_vec = DIRS["R"]
         for move in moves:
+            match move.rotate:
+                case "L":
+                    curr_vec = curr_vec.rotated_left()
+                case "R":
+                    curr_vec = curr_vec.rotated_right()
             for _ in range(move.steps):
-                curr_tile = next_tile(maze, curr_tile, move.vec)
-        last_vec = moves[-1].vec
-        return 1000 * curr_tile.y + 4 * curr_tile.x + VEC_POINTS[(last_vec.vx, last_vec.vy)]
+                curr_tile, curr_vec = next_tile(maze, curr_tile, curr_vec)
+        return 1000 * curr_tile.y + 4 * curr_tile.x + VEC_POINTS[(curr_vec.vx, curr_vec.vy)]
 
 
 def part2(input_txt: str) -> int:
