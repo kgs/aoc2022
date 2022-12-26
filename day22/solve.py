@@ -126,12 +126,12 @@ def face_3d(x: int, y: int) -> tuple[int, tuple[int, int, int, int]]:
     # x1, x2, y1, y2
     # sentinels included!
     faces = [
-        (9, 9 + 4, 1, 1 + 4),
-        (1, 1 + 4, 5, 5 + 4),
-        (5, 5 + 4, 5, 5 + 4),
-        (9, 9 + 4, 5, 5 + 4),
-        (9, 9 + 4, 9, 9 + 4),
-        (13, 13 + 4, 9, 9 + 4)
+        (51, 51 + 50, 1, 1 + 50),
+        (101, 101 + 50, 1, 1 + 50),
+        (51, 51 + 50, 51, 51 + 50),
+        (1, 1 + 50, 101, 101 + 50),
+        (51, 51 + 50, 101, 101 + 50),
+        (1, 1 + 50, 151, 151 + 50)
     ]
     for i, f in enumerate(faces):
         x1, x2, y1, y2 = f
@@ -178,44 +178,44 @@ def transition_from_border(x: int, y: int, vec: Vector) -> tuple[int, int, Vecto
     match curr_face:
         case 1:
             match vec:
-                case Direction.LEFT:  # 3
-                    res = rotate_and_move(x, y, vec, 3, -1, 0)
-                case Direction.RIGHT:  # 6
-                    res = rotate_and_move(x, y, vec, 2, 2, 2)
-                case Direction.UP:  # 2
-                    res = rotate_and_move(x, y, vec, 2, -2, 0)
+                case Direction.LEFT:  # 4
+                    res = rotate_and_move(x, y, vec, 2, -2, 2)
+                case Direction.UP:  # 6
+                    res = rotate_and_move(x, y, vec, 1, -2, 3)
         case 2:
             match vec:
-                case Direction.LEFT:  # 6
-                    res = rotate_and_move(x, y, vec, 1, 3, 2)
-                case Direction.UP:  # 1
-                    res = rotate_and_move(x, y, vec, 2, 2, -2)
-                case Direction.DOWN:  # 5
-                    res = rotate_and_move(x, y, vec, 2, 2, 2)
+                case Direction.UP:  # 6
+                    res = rotate_and_move(x, y, vec, 0, -2, 4)
+                case Direction.RIGHT:  # 5
+                    res = rotate_and_move(x, y, vec, 2, 0, 2)
+                case Direction.DOWN:  # 3
+                    res = rotate_and_move(x, y, vec, 1, 0, 1)
         case 3:
             match vec:
-                case Direction.UP:  # 1
-                    res = rotate_and_move(x, y, vec, 1, 0, -1)
-                case Direction.DOWN:  # 5
-                    res = rotate_and_move(x, y, vec, 3, 0, 1)
+                case Direction.LEFT:  # 4
+                    res = rotate_and_move(x, y, vec, 3, -1, 0)
+                case Direction.RIGHT:  # 2
+                    res = rotate_and_move(x, y, vec, 3, 1, 0)
         case 4:
             match vec:
-                case Direction.RIGHT:  # 6
-                    res = rotate_and_move(x, y, vec, 1, 1, 0)
+                case Direction.UP:  # 3
+                    res = rotate_and_move(x, y, vec, 1, 0, -1)
+                case Direction.LEFT:  # 1
+                    res = rotate_and_move(x, y, vec, 2, 0, -2)
         case 5:
             match vec:
-                case Direction.LEFT:  # 3
-                    res = rotate_and_move(x, y, vec, 1, -1, 0)
-                case Direction.DOWN:  # 2
-                    res = rotate_and_move(x, y, vec, 2, -2, 0)
+                case Direction.RIGHT:  # 2
+                    res = rotate_and_move(x, y, vec, 2, 2, -2)
+                case Direction.DOWN:  # 6
+                    res = rotate_and_move(x, y, vec, 1, 0, 1)
         case 6:
             match vec:
-                case Direction.UP:  # 4
-                    res = rotate_and_move(x, y, vec, 3, 0, -1)
-                case Direction.RIGHT:  # 1
-                    res = rotate_and_move(x, y, vec, 2, 0, -2)
+                case Direction.LEFT:  # 1
+                    res = rotate_and_move(x, y, vec, 3, 1, -4)
+                case Direction.RIGHT:  # 5
+                    res = rotate_and_move(x, y, vec, 3, 1, 0)
                 case Direction.DOWN:  # 2
-                    res = rotate_and_move(x, y, vec, 3, -4, -1)
+                    res = rotate_and_move(x, y, vec, 0, 2, -4)
     if res is None:
         raise Exception("should not happen!")
     x, y, vec = res
@@ -253,19 +253,10 @@ def part2(input_txt: str) -> int:
         return calc_points(curr_tile, curr_vec)
 
 
-def test():
-    assert rotate_and_move(9, 2, Direction.LEFT, 3, -1, 0) == (6, 4, Direction.DOWN)
-    assert transition_from_border(12, 6, Direction.RIGHT) == (15, 9, Direction.DOWN)
-    assert transition_from_border(11, 12, Direction.DOWN) == (2, 8, Direction.UP)
-
-
 if __name__ == "__main__":
-    test()
     sample_p1_ans = part1("sample.txt")
     assert sample_p1_ans == 6032
     p1_ans = part1("input.txt")
     assert p1_ans == 133174
-    sample_p2_ans = part2("sample.txt")
-    print(f"sample: {sample_p2_ans}")
-    # p2_ans = part2("input.txt")
-    # print(f"part2: {p2_ans}")
+    p2_ans = part2("input.txt")
+    assert p2_ans == 15410
