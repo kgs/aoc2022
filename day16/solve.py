@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
-from itertools import permutations
 from datetime import datetime
-import math
+import random
 import re
 
 INF = 1_000_000_000
@@ -45,7 +44,7 @@ class Graph:
         self.dist = dist
 
 
-def part1(input_txt: str) -> int:
+def part1(input_txt: str, iterations: int) -> int:
     with open(input_txt) as f:
         g = Graph()
         lines = map(lambda v: v.strip(), f.readlines())
@@ -56,15 +55,13 @@ def part1(input_txt: str) -> int:
         g.calc_dist()
         nodes = sorted([(g.flow_rate[i], i) for i in range(g.size) if g.flow_rate[i] > 0], reverse=True)
         best = 0
-        a, b = 0, math.factorial(len(nodes))
-        for nodes_permutation in permutations(nodes):
-            a += 1
-            if a % 10_000_000 == 0:
-                print("{} {:.4f}% {}".format(datetime.now(), a * 100 / b, best))
-            curr_node = 0
+        for it in range(iterations):
+            if it % 1_000_000 == 0:
+                print("{} {:.2f}% {}".format(datetime.now(), it * 100 / iterations, best))
+            curr_node = g.valve2num["AA"]
             minutes = 30
             tmp = 0
-            for fr, i in nodes_permutation:
+            for fr, i in nodes:
                 # move there and open valve
                 minutes -= (g.dist[curr_node][i] + 1)
                 if minutes <= 0:
@@ -72,13 +69,14 @@ def part1(input_txt: str) -> int:
                 tmp += fr * minutes
                 curr_node = i
             best = max(best, tmp)
+            random.shuffle(nodes)
         return best
 
 
 if __name__ == "__main__":
-    sample_p1_ans = part1("sample.txt")
+    sample_p1_ans = part1("sample.txt", 1_000_001)
     print(f"sample1: {sample_p1_ans}")
-    p1_ans = part1("input.txt")
+    p1_ans = part1("input.txt", 100_000_001)
     print(f"part1: {p1_ans}")
     # sample_p2_ans = part2("sample.txt")
     # print(f"sample2: {sample_p2_ans}")
