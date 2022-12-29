@@ -44,7 +44,7 @@ class Graph:
         self.dist = dist
 
 
-def part1(input_txt: str, iterations: int) -> int:
+def build_graph(input_txt: str) -> Graph:
     with open(input_txt) as f:
         g = Graph()
         lines = map(lambda v: v.strip(), f.readlines())
@@ -53,32 +53,54 @@ def part1(input_txt: str, iterations: int) -> int:
             src_node, flow_rate, dst_nodes = match.group(1), int(match.group(2)), match.group(3).split(", ")
             g.add_node(src_node, flow_rate, dst_nodes)
         g.calc_dist()
-        nodes = sorted([(g.flow_rate[i], i) for i in range(g.size) if g.flow_rate[i] > 0], reverse=True)
-        best = 0
-        for it in range(iterations):
-            if it % 1_000_000 == 0:
-                print("{} {:.2f}% {}".format(datetime.now(), it * 100 / iterations, best))
-            curr_node = g.valve2num["AA"]
-            minutes = 30
-            tmp = 0
-            for fr, i in nodes:
-                # move there and open valve
-                minutes -= (g.dist[curr_node][i] + 1)
-                if minutes <= 0:
-                    break
-                tmp += fr * minutes
-                curr_node = i
-            best = max(best, tmp)
-            random.shuffle(nodes)
-        return best
+        return g
+
+
+def simulate(g: Graph, nodes: list[tuple[int, int]], minutes: int) -> int:
+    curr_node = g.valve2num["AA"]
+    res = 0
+    for fr, i in nodes:
+        # move there and open valve
+        minutes -= (g.dist[curr_node][i] + 1)
+        if minutes <= 0:
+            break
+        res += fr * minutes
+        curr_node = i
+    return res
+
+
+def part1(input_txt: str, iterations: int) -> int:
+    g = build_graph(input_txt)
+    nodes = [(g.flow_rate[i], i) for i in range(g.size) if g.flow_rate[i] > 0]
+    best = 0
+    for it in range(iterations):
+        if it % (iterations / 100) == 0:
+            print("{} {:.2f}% {}".format(datetime.now(), it * 100 / iterations, best))
+        best = max(best, simulate(g, nodes, 30))
+        random.shuffle(nodes)
+    return best
+
+
+def part2(input_txt: str, iterations: int) -> int:
+    g = build_graph(input_txt)
+    nodes = [(g.flow_rate[i], i) for i in range(g.size) if g.flow_rate[i] > 0]
+    best = 0
+    for it in range(iterations):
+        if it % (iterations / 100) == 0:
+            print("{} {:.2f}% {}".format(datetime.now(), it * 100 / iterations, best))
+        for i in range(len(nodes)):
+            best = max(best, simulate(g, nodes[:i], 26) + simulate(g, nodes[i:], 26))
+        random.shuffle(nodes)
+        # TODO: instead of random shuffle, generate only possible paths in which nodes could be visited in time
+    return best
 
 
 if __name__ == "__main__":
-    sample_p1_ans = part1("sample.txt", 1_000_001)
-    print(f"sample1: {sample_p1_ans}")
-    p1_ans = part1("input.txt", 100_000_001)
-    print(f"part1: {p1_ans}")
-    # sample_p2_ans = part2("sample.txt")
-    # print(f"sample2: {sample_p2_ans}")
-    # p2_ans = part2("input.txt")
-    # print(f"part2: {p2_ans}")
+    # sample_p1_ans = part1("sample.txt", 100_000)
+    # print(f"sample1: {sample_p1_ans}")
+    # p1_ans = part1("input.txt", 100_000_000)
+    # print(f"part1: {p1_ans}")
+    sample_p2_ans = part2("sample.txt", 100_000)
+    print(f"sample2: {sample_p2_ans}")
+    p2_ans = part2("input.txt", 600_000_000)
+    print(f"part2: {p2_ans}")
