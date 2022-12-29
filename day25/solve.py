@@ -21,8 +21,7 @@ def dec2snafu(x: int) -> str:
     res = []
     carry = 0
     for d in reversed(digits):
-        v = d + carry
-        carry = 0
+        carry, v = divmod(d + carry, 5)
         if v > 2:
             carry = 1
         res.append(SNAFU_DIGITS[v])
@@ -38,7 +37,12 @@ def part1(input_txt: str) -> str:
         return dec2snafu(x)
 
 
+def test():
+    for i in range(10_000):
+        assert snafu2dec(dec2snafu(i)) == i
+
 if __name__ == "__main__":
+    test()
     sample_p1_ans = part1("sample.txt")
     assert sample_p1_ans == "2=-1=0"
     p1_ans = part1("input.txt")
