@@ -90,19 +90,26 @@ def part1(input_txt: str) -> int:
 def part2(input_txt: str) -> int:
     g = build_graph(input_txt)
     nodes_to_visit = {i for i, fr in enumerate(g.flow_rate) if fr > 0}
-    paths = gen_paths(g, g.valve2num["AA"], 26, nodes_to_visit, [])
+    paths = list(gen_paths(g, g.valve2num["AA"], 26, nodes_to_visit, []))
+    paths_sets = [set(p) for p in paths]
+    paths_flows = [simulate(g, p, 26) for p in paths]
     best = 0
+    n = len(paths)
+    for p1 in range(n):
+        if p1 % 100 == 0:
+            print("{:.2f}%".format(p1 * 100 / n))
+        for p2 in range(p1 + 1, n):
+            if len(paths_sets[p1] & paths_sets[p2]) == 0:
+                best = max(best, paths_flows[p1] + paths_flows[p2])
     return best
 
 
 if __name__ == "__main__":
     sample_p1_ans = part1("sample.txt")
     assert sample_p1_ans == 1651
-    print(f"sample1: {sample_p1_ans}")
     p1_ans = part1("input.txt")
     assert p1_ans == 1915
-    print(f"part1: {p1_ans}")
     sample_p2_ans = part2("sample.txt")
-    print(f"sample2: {sample_p2_ans}")
-    # p2_ans = part2("input.txt", 600_000_000)
-    # print(f"part2: {p2_ans}")
+    assert sample_p2_ans == 1707
+    p2_ans = part2("input.txt")
+    print(f"part2: {p2_ans}")
