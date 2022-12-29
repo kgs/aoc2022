@@ -1,5 +1,5 @@
+from dataclasses import dataclass
 from typing import Self
-from pydantic.dataclasses import dataclass
 from collections import deque
 import re
 
