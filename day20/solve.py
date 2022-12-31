@@ -51,18 +51,7 @@ def parse_list(input_txt: str) -> list[int]:
         return [int(x) for x in f.readlines()]
 
 
-def part1(input_txt: str) -> int:
-    values = parse_list(input_txt)
-    nodes = [Node(values[0], None, None)]
-    for i in range(1, len(values)):
-        prev = nodes[i - 1]
-        curr = Node(values[i], prev, None)
-        nodes.append(curr)
-        prev.next = curr
-    nodes[-1].next = nodes[0]
-    nodes[0].prev = nodes[-1]
-    for n in nodes:
-        move(n, n.v)
+def calc_result(nodes):
     zero = next(e for e in nodes if e.v == 0)
     res = 0
     for _ in range(3):
@@ -71,8 +60,34 @@ def part1(input_txt: str) -> int:
     return res
 
 
+def prepare_nodes(values):
+    nodes = [Node(values[0], None, None)]
+    for i in range(1, len(values)):
+        prev = nodes[i - 1]
+        curr = Node(values[i], prev, None)
+        nodes.append(curr)
+        prev.next = curr
+    nodes[-1].next = nodes[0]
+    nodes[0].prev = nodes[-1]
+    return nodes
+
+
+def part1(input_txt: str) -> int:
+    values = parse_list(input_txt)
+    nodes = prepare_nodes(values)
+    for n in nodes:
+        move(n, n.v)
+    return calc_result(nodes)
+
+
 def part2(input_txt: str) -> int:
-    pass
+    values = [v * 811589153 for v in parse_list(input_txt)]
+    nodes = prepare_nodes(values)
+    for _ in range(10):
+        for n in nodes:
+            steps = n.v % (len(values) - 1)
+            move(n, steps)
+    return calc_result(nodes)
 
 
 if __name__ == "__main__":
@@ -80,7 +95,7 @@ if __name__ == "__main__":
     print(f"sample1: {sample_p1_ans}")
     p1_ans = part1("input.txt")
     print(f"part1: {p1_ans}")
-    # sample_p2_ans = part2("sample.txt")
-    # print(f"sample2: {sample_p2_ans}")
-    # p2_ans = part2("input.txt")
-    # print(f"part2: {p2_ans}")
+    sample_p2_ans = part2("sample.txt")
+    print(f"sample2: {sample_p2_ans}")
+    p2_ans = part2("input.txt")
+    print(f"part2: {p2_ans}")
