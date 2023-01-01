@@ -32,8 +32,11 @@ def parse_cave(input_txt) -> Cave:
         return Cave(segments, taken, max_y)
 
 
-def simulate_sand(c: Cave, start: tuple[int, int]) -> bool:
-    curr_pos = start
+def simulate_sand(c: Cave, start_pos: tuple[int, int], infinite_fall: bool) -> bool:
+    if c.taken[start_pos[1]][start_pos[0]]:
+        # cannot move, start is blocked
+        return False
+    curr_pos = start_pos
     while True:
         next_pos = curr_pos
         if c.taken[next_pos[1] + 1][next_pos[0]] == 0:
@@ -42,37 +45,32 @@ def simulate_sand(c: Cave, start: tuple[int, int]) -> bool:
             next_pos = (next_pos[0] - 1, next_pos[1] + 1)
         elif c.taken[next_pos[1] + 1][next_pos[0] + 1] == 0:
             next_pos = (next_pos[0] + 1, next_pos[1] + 1)
-        if curr_pos == next_pos:
+        if infinite_fall and next_pos[1] > c.max_y_taken:
+            # falling down infinitely...
+            return False
+        if curr_pos == next_pos or next_pos[1] == c.max_y_taken + 1:
             # cannot move, place on cave
             c.taken[next_pos[1]][next_pos[0]] = 2
             return True
         else:
             # move
             curr_pos = next_pos
-        if curr_pos[1] > c.max_y_taken:
-            # falling down infinitely...
-            return False
 
 
-def part1(input_txt: str) -> int:
+def solve(input_txt: str, infinite_fall: bool) -> int:
     cave = parse_cave(input_txt)
-    start = (500, 0)
     res = 0
-    while simulate_sand(cave, start):
+    while simulate_sand(cave, (500, 0), infinite_fall):
         res += 1
     return res
 
 
-def part2(input_txt: str) -> int:
-    return 0
-
-
 if __name__ == "__main__":
-    sample_p1_ans = part1("sample.txt")
+    sample_p1_ans = solve("sample.txt", infinite_fall=True)
     print(f"sample1: {sample_p1_ans}")
-    p1_ans = part1("input.txt")
+    p1_ans = solve("input.txt", infinite_fall=True)
     print(f"part1: {p1_ans}")
-    sample_p2_ans = part2("sample.txt")
+    sample_p2_ans = solve("sample.txt", infinite_fall=False)
     print(f"sample2: {sample_p2_ans}")
-    p2_ans = part2("input.txt")
+    p2_ans = solve("input.txt", infinite_fall=False)
     print(f"part2: {p2_ans}")
